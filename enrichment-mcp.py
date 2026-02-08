@@ -51,8 +51,10 @@ def search_tickets_by_user(
             ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
-                return extract_ticket_fields(response.data)
-            return []
+                # Extract fields (keeping the logic but not returning them)
+                tickets = extract_ticket_fields(response.data)
+                return [{"total_count": len(tickets)}]
+            return [{"total_count": 0}]
         except Exception as jsonb_filter_error:
             error_msg = str(jsonb_filter_error)
             return [{"error": f"JSONB filter query failed: {error_msg}"}]
@@ -94,8 +96,10 @@ def search_tickets_by_asset(
             ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
-                return extract_ticket_fields(response.data)
-            return []
+                # Extract fields (keeping the logic but not returning them)
+                tickets = extract_ticket_fields(response.data)
+                return [{"total_count": len(tickets)}]
+            return [{"total_count": 0}]
         except Exception as jsonb_filter_error:
             error_msg = str(jsonb_filter_error)
             return [{"error": f"JSONB filter query failed: {error_msg}"}]
