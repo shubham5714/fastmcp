@@ -2,4 +2,4 @@ fastmcp
 requests
 pydantic
 ipinfo
-
+supabase
