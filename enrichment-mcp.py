@@ -1,4 +1,5 @@
 from typing import List, Dict, Any
+from datetime import datetime, timedelta
 from fastmcp import FastMCP
 from supabase import create_client
 
@@ -40,12 +41,14 @@ def search_tickets_by_user(
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
+        # Filter for tickets from the last 7 days
         try:
+            seven_days_ago = (datetime.now() - timedelta(days=7)).isoformat()
             response = supabase.table("tickets").select("*").filter(
                 "artifacts_and_assets->users",
                 "cs",
                 f'[{{"value":"{username}"}}]'
-            ).execute()
+            ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
                 return extract_ticket_fields(response.data)
@@ -81,12 +84,14 @@ def search_tickets_by_asset(
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
+        # Filter for tickets from the last 7 days
         try:
+            seven_days_ago = (datetime.now() - timedelta(days=7)).isoformat()
             response = supabase.table("tickets").select("*").filter(
                 "artifacts_and_assets->assets",
                 "cs",
                 f'[{{"value":"{asset}"}}]'
-            ).execute()
+            ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
                 return extract_ticket_fields(response.data)
