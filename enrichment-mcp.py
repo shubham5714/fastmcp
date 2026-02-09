@@ -23,9 +23,7 @@ def search_tickets_by_user(
     username: str,
 ) -> List[Dict[str, Any]]:
     """
-    Search for tickets in the tickets table where the artifacts_and_assets JSONB column
-    contains a user with the specified username in the users array.
-    Updates related_alerts only for the ticket with the provided id.
+    This tool Search for Related Alerts in database for Given Username.
     
     """
     print(f"Searching for tickets by user: {username}, updating ticket id: {id}")
@@ -115,9 +113,7 @@ def search_tickets_by_asset(
     asset: str,
 ) -> List[Dict[str, Any]]:
     """
-    Search for tickets in the tickets table where the artifacts_and_assets JSONB column
-    contains an asset with the specified asset name in the assets array.
-    Updates related_alerts only for the ticket with the provided id.
+    This tool Search for Related Alerts in database for Given Asset name.
     
     """
     print(f"Searching for tickets by asset: {asset}, updating ticket id: {id}")
