@@ -7,13 +7,11 @@ mcp = FastMCP("Enrichment MCP Server")
 
 
 def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Extract only id, name, closure_category, and closure_reason from tickets."""
+    """Extract only id and name from tickets."""
     return [
         {
-            "id": ticket.get("id"),
-            "name": ticket.get("name"),
-            "closure_category": ticket.get("closure_category"),
-            "closure_reason": ticket.get("closure_reason")
+            "id": ticket.get("id", ""),
+            "name": ticket.get("name", "")
         }
         for ticket in tickets
     ]
@@ -51,10 +49,12 @@ def search_tickets_by_user(
             ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
-                # Extract fields (keeping the logic but not returning them)
                 tickets = extract_ticket_fields(response.data)
-                return [{"total_count": len(tickets)}]
-            return [{"total_count": 0}]
+                data = {"users": tickets}
+                total_count = len(tickets)
+                return [{"total_count": total_count, "data": data}]
+            data = {"users": []}
+            return [{"total_count": 0, "data": data}]
         except Exception as jsonb_filter_error:
             error_msg = str(jsonb_filter_error)
             return [{"error": f"JSONB filter query failed: {error_msg}"}]
@@ -96,10 +96,12 @@ def search_tickets_by_asset(
             ).gte("created_at", seven_days_ago).execute()
             
             if response.data:
-                # Extract fields (keeping the logic but not returning them)
                 tickets = extract_ticket_fields(response.data)
-                return [{"total_count": len(tickets)}]
-            return [{"total_count": 0}]
+                data = {"assets": tickets}
+                total_count = len(tickets)
+                return [{"total_count": total_count, "data": data}]
+            data = {"assets": []}
+            return [{"total_count": 0, "data": data}]
         except Exception as jsonb_filter_error:
             error_msg = str(jsonb_filter_error)
             return [{"error": f"JSONB filter query failed: {error_msg}"}]
