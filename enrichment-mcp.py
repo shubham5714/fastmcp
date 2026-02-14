@@ -6,11 +6,15 @@ from supabase import create_client
 mcp = FastMCP("Enrichment MCP Server")
 
 def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Extract only id and name from tickets."""
+    """Extract id, time, name, severity, status, and closure_category from tickets."""
     return [
         {
             "id": ticket.get("id", ""),
-            "name": ticket.get("name", "")
+            "time": ticket.get("occurred_at", ""),
+            "name": ticket.get("name", ""),
+            "severity": ticket.get("severity", ""),
+            "status": ticket.get("status", ""),
+            "closure_category": ticket.get("closure_category", "")
         }
         for ticket in tickets
     ]
