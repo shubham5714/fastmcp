@@ -22,7 +22,7 @@ def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]
 
 @mcp.tool
 def search_tickets_by_user(
-    id: str,
+    id: int,
     username: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -115,7 +115,7 @@ def search_tickets_by_user(
 
 @mcp.tool
 def search_tickets_by_asset(
-    id: str,
+    id: int,
     asset: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -208,7 +208,7 @@ def search_tickets_by_asset(
 
 @mcp.tool
 def search_tickets_by_ip(
-    id: str,
+    id: int,
     ip: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -301,7 +301,7 @@ def search_tickets_by_ip(
 
 @mcp.tool
 def search_tickets_by_domain(
-    id: str,
+    id: int,
     domain: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -394,7 +394,7 @@ def search_tickets_by_domain(
 
 @mcp.tool
 def search_tickets_by_hash(
-    id: str,
+    id: int,
     hash_value: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -487,7 +487,7 @@ def search_tickets_by_hash(
 
 @mcp.tool
 def search_tickets_by_url(
-    id: str,
+    id: int,
     url: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
