@@ -484,7 +484,53 @@ def search_tickets_by_hash(
         error_msg = str(general_error)
         return [{"error": f"General error: {error_msg}"}]
 
+@mcp.tool
+def get_mitre_by_name(
+    name: str,
+    tenant_id: str,
+) -> List[Dict[str, Any]]:
+    """
+    Get the mitre JSON column from the tickets table by ticket name and tenant_id.
+    Returns an empty list if no rows are found.
+    """
+    print(f"Getting mitre by name: {name}, tenant_id: {tenant_id}")
+    try:
+        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
+        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
 
+        try:
+            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        except Exception as client_init_error:
+            error_msg = str(client_init_error)
+            return [{"error": f"Client initialization failed: {error_msg}"}]
+
+        try:
+            response = (
+                supabase.table("tickets")
+                .select("mitre")
+                .eq("name", name)
+                .eq("tenant_id", tenant_id)
+                .limit(1)
+                .execute()
+            )
+
+            if not response.data:
+                return []
+
+            mitre_data = response.data[0].get("mitre")
+            if mitre_data is None:
+                return []
+
+            if isinstance(mitre_data, dict):
+                return [mitre_data]
+            return [{"mitre": mitre_data}]
+        except Exception as query_error:
+            error_msg = str(query_error)
+            return [{"error": f"Query failed: {error_msg}"}]
+    except Exception as general_error:
+        error_msg = str(general_error)
+        return [{"error": f"General error: {error_msg}"}]
+        
 @mcp.tool
 def search_tickets_by_url(
     id: int,
