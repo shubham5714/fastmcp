@@ -1,6 +1,8 @@
+import os
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
 from fastmcp import FastMCP
+from prefect.deployments import run_deployment
 from supabase import create_client
 
 mcp = FastMCP("Enrichment MCP Server")
@@ -22,7 +24,7 @@ def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]
 
 @mcp.tool
 def search_tickets_by_user(
-    id: int,
+    id: str,
     username: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -115,7 +117,7 @@ def search_tickets_by_user(
 
 @mcp.tool
 def search_tickets_by_asset(
-    id: int,
+    id: str,
     asset: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -208,7 +210,7 @@ def search_tickets_by_asset(
 
 @mcp.tool
 def search_tickets_by_ip(
-    id: int,
+    id: str,
     ip: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -301,7 +303,7 @@ def search_tickets_by_ip(
 
 @mcp.tool
 def search_tickets_by_domain(
-    id: int,
+    id: str,
     domain: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -394,7 +396,7 @@ def search_tickets_by_domain(
 
 @mcp.tool
 def search_tickets_by_hash(
-    id: int,
+    id: str,
     hash_value: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -484,6 +486,7 @@ def search_tickets_by_hash(
         error_msg = str(general_error)
         return [{"error": f"General error: {error_msg}"}]
 
+
 @mcp.tool
 def get_mitre_by_name(
     name: str,
@@ -530,10 +533,11 @@ def get_mitre_by_name(
     except Exception as general_error:
         error_msg = str(general_error)
         return [{"error": f"General error: {error_msg}"}]
-        
+
+
 @mcp.tool
 def search_tickets_by_url(
-    id: int,
+    id: str,
     url: str,
     tenant_id: str,
 ) -> List[Dict[str, Any]]:
@@ -622,6 +626,74 @@ def search_tickets_by_url(
     except Exception as general_error:
         error_msg = str(general_error)
         return [{"error": f"General error: {error_msg}"}]
+
+
+GURUCUL_COMMAND = "gra-search"
+GURUCUL_DEFAULT_PAGE = 1
+GURUCUL_DEFAULT_MAX = 100
+GURUCUL_DEPLOYMENT_TIMEOUT = 600
+GURUCUL_POLL_INTERVAL = 5
+
+
+@mcp.tool
+def gurucul_search_tool(
+    query: str,
+    instance_name: str,
+    instance_id: int,
+    from_date: str,
+    to_date: str,
+) -> List[Dict[str, Any]]:
+    """
+    This tool searches Gurucul GRA logs within the specified time range and supports filtering, aggregation, and grouping.
+
+    Args:
+        query: Gurucul GRA search query, for example
+         1.  group by datasourcename  #explore the datasources available
+         2.  datasourcename = "Fortinet" group by logtype #pivot to specific datasource and explore the categories available
+         3.  ((datasourcename = "Fortinet"  and logtype = "utm"  )) and application = "Google.Drive" #filter to specific categories
+        instance_name: Gurucul instance name, for example "Gurucul SIEM".
+        instance_id: Gurucul instance id passed to the deployment as integration_id, for example 62
+        from_date: Start of the search window, format YYYY-MM-DD HH:MM:SS
+        to_date: End of the search window, format YYYY-MM-DD HH:MM:SS
+    """
+    prefect_api_url = os.getenv("PREFECT_API_URL")
+    if not prefect_api_url:
+        return [{"state": "FAILED", "result": "PREFECT_API_URL is not set in the MCP server environment"}]
+
+    os.environ["PREFECT_API_URL"] = prefect_api_url
+    prefect_auth_string = os.getenv("PREFECT_API_AUTH_STRING")
+    if prefect_auth_string:
+        os.environ["PREFECT_API_AUTH_STRING"] = prefect_auth_string
+
+    try:
+        flow_run = run_deployment(
+            name=f"{instance_name}/{instance_name}",
+            parameters={
+                "integration_id": instance_id,
+                "command": GURUCUL_COMMAND,
+                "argue": {
+                    "query": query,
+                    "fromDate": from_date,
+                    "toDate": to_date,
+                    "page": GURUCUL_DEFAULT_PAGE,
+                    "max": GURUCUL_DEFAULT_MAX,
+                },
+            },
+            timeout=GURUCUL_DEPLOYMENT_TIMEOUT,
+            poll_interval=GURUCUL_POLL_INTERVAL,
+        )
+
+        state = str(flow_run.state.type) if flow_run.state else "FAILED"
+
+        if not flow_run.state or not flow_run.state.is_final():
+            return [{"state": state, "result": f"Deployment is still running after timeout: {flow_run.id}"}]
+
+        if flow_run.state.is_failed():
+            return [{"state": state, "result": flow_run.state.message}]
+
+        return [{"state": state, "result": flow_run.state.result()}]
+    except Exception as general_error:
+        return [{"state": "FAILED", "result": str(general_error)}]
 
 
 if __name__ == "__main__":
