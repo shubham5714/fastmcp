@@ -653,8 +653,8 @@ def gurucul_search_tool(
          3.  ((datasourcename = "Fortinet"  and logtype = "utm"  )) and application = "Google.Drive" #filter to specific categories
         instance_name: Gurucul instance name, for example "Gurucul SIEM".
         instance_id: Gurucul instance id passed to the deployment as integration_id, for example 62
-        from_date: Start of the search window, format YYYY-MM-DD HH:MM:SS
-        to_date: End of the search window, format YYYY-MM-DD HH:MM:SS
+        from_date: Start of the search window in UTC, format YYYY-MM-DD HH:MM:SS
+        to_date: End of the search window in UTC, format YYYY-MM-DD HH:MM:SS
     """
     prefect_api_url = os.getenv("PREFECT_API_URL")
     if not prefect_api_url:
