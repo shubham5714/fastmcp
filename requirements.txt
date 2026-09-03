@@ -4,3 +4,4 @@ pydantic
 ipinfo
 supabase
 prefect
+prefect-aws
