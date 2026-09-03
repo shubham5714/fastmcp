@@ -3,3 +3,4 @@ requests
 pydantic
 ipinfo
 supabase
+prefect
