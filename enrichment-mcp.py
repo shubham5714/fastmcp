@@ -691,7 +691,18 @@ def gurucul_search_tool(
         if flow_run.state.is_failed():
             return [{"state": state, "result": flow_run.state.message}]
 
-        return [{"state": state, "result": flow_run.state.result()}]
+        try:
+            from prefect_aws.s3 import S3Bucket  # noqa: F401
+        except ImportError:
+            return [{
+                "state": state,
+                "result": "Flow completed, but prefect-aws is not installed so the S3 result cannot be loaded. Add prefect-aws to the MCP server requirements.",
+            }]
+
+        try:
+            return [{"state": state, "result": flow_run.state.result()}]
+        except Exception as result_error:
+            return [{"state": state, "result": str(result_error)}]
     except Exception as general_error:
         return [{"state": "FAILED", "result": str(general_error)}]
 
