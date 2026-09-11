@@ -5,7 +5,7 @@ from fastmcp import FastMCP
 from prefect.deployments import run_deployment
 from supabase import create_client
 
-mcp = FastMCP("Enrichment MCP Server")
+mcp = FastMCP("DRX MCP Server")
 
 def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Extract id, time, name, severity, status, and closure_category from tickets."""
@@ -626,6 +626,53 @@ def search_tickets_by_url(
     except Exception as general_error:
         error_msg = str(general_error)
         return [{"error": f"General error: {error_msg}"}]
+
+
+@mcp.tool
+def get_instance_by_tool_name(
+    tool_name: str,
+    tenant_id: str,
+) -> List[Dict[str, Any]]:
+    """
+    Fetch instance_name and instance_id from the instance_tools table
+    for the given tool_name and tenant_id.
+    Returns tool_name, instance_name, and instance_id for each matching row.
+    """
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    if not supabase_url or not supabase_key:
+        return [{"error": "SUPABASE_URL and SUPABASE_KEY must be set in the MCP server environment"}]
+
+    try:
+        try:
+            supabase = create_client(supabase_url, supabase_key)
+        except Exception as client_init_error:
+            return [{"error": f"Client initialization failed: {client_init_error}"}]
+
+        try:
+            response = (
+                supabase.table("instance_tools")
+                .select("tool_name, instance_name, instance_id")
+                .eq("tool_name", tool_name)
+                .eq("tenant_id", tenant_id)
+                .execute()
+            )
+        except Exception as query_error:
+            return [{"error": f"Query failed: {query_error}"}]
+
+        if not response.data:
+            return []
+
+        return [
+            {
+                "tool_name": row.get("tool_name"),
+                "instance_name": row.get("instance_name"),
+                "instance_id": row.get("instance_id"),
+            }
+            for row in response.data
+        ]
+    except Exception as general_error:
+        return [{"error": f"General error: {general_error}"}]
 
 
 GURUCUL_COMMAND = "gra-search"
