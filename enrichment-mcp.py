@@ -637,6 +637,7 @@ def get_instance_by_tool_name(
     Fetch instance_name and instance_id from the instance_tools table
     for the given tool_name and tenant_id.
     Returns tool_name, instance_name, and instance_id for each matching row.
+    Provide accurate tool_name from provided tools list.
     """
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
