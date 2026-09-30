@@ -7,6 +7,22 @@ from supabase import create_client
 
 mcp = FastMCP("DRX MCP Server")
 
+
+def get_supabase_client():
+    """Create a Supabase client from SUPABASE_URL and SUPABASE_KEY env vars.
+
+    Returns (client, None) on success, or (None, error_payload) on failure.
+    """
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    if not supabase_url or not supabase_key:
+        return None, [{"error": "SUPABASE_URL and SUPABASE_KEY must be set in the MCP server environment"}]
+    try:
+        return create_client(supabase_url, supabase_key), None
+    except Exception as client_init_error:
+        return None, [{"error": f"Client initialization failed: {client_init_error}"}]
+
+
 def extract_ticket_fields(tickets: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Extract id, time, name, severity, status, and closure_category from tickets."""
     return [
@@ -36,14 +52,9 @@ def search_tickets_by_user(
     """
     print(f"Searching for tickets by user: {username}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -129,14 +140,9 @@ def search_tickets_by_asset(
     """
     print(f"Searching for tickets by asset: {asset}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -222,14 +228,9 @@ def search_tickets_by_ip(
     """
     print(f"Searching for tickets by IP: {ip}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -315,14 +316,9 @@ def search_tickets_by_domain(
     """
     print(f"Searching for tickets by domain: {domain}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -408,14 +404,9 @@ def search_tickets_by_hash(
     """
     print(f"Searching for tickets by hash: {hash_value}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -498,14 +489,9 @@ def get_mitre_by_name(
     """
     print(f"Getting mitre by name: {name}, tenant_id: {tenant_id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
 
         try:
             response = (
@@ -549,14 +535,9 @@ def search_tickets_by_url(
     """
     print(f"Searching for tickets by URL: {url}, tenant_id: {tenant_id}, updating ticket id: {id}")
     try:
-        SUPABASE_URL = "https://zhhsijigoupqroztdrdy.supabase.co"
-        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoaHNpamlnb3VwcXJvenRkcmR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNjgyODksImV4cCI6MjA3MjY0NDI4OX0.Mxq7DYbKV9OXHS7eE1YpdQ4F8Htld0Vt6FwlfOpX8kQ"
-       
-        try:
-            supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as client_init_error:
-            error_msg = str(client_init_error)
-            return [{"error": f"Client initialization failed: {error_msg}"}]
+        supabase, client_error = get_supabase_client()
+        if client_error:
+            return client_error
         
         # Use database-level JSONB filtering
         # This uses PostgREST's JSONB contains operator to filter at the database level
@@ -639,17 +620,11 @@ def get_instance_by_tool_name(
     Returns tool_name, instance_name, and instance_id for each matching row.
     Provide accurate tool_name from provided tools list.
     """
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
-    if not supabase_url or not supabase_key:
-        return [{"error": "SUPABASE_URL and SUPABASE_KEY must be set in the MCP server environment"}]
+    supabase, client_error = get_supabase_client()
+    if client_error:
+        return client_error
 
     try:
-        try:
-            supabase = create_client(supabase_url, supabase_key)
-        except Exception as client_init_error:
-            return [{"error": f"Client initialization failed: {client_init_error}"}]
-
         try:
             response = (
                 supabase.table("instance_tools")
