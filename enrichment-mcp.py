@@ -674,6 +674,7 @@ def gurucul_search_tool(
          1.  group by datasourcename  #explore the datasources available
          2.  datasourcename = "Fortinet" group by logtype #pivot to specific datasource and explore the categories available
          3.  ((datasourcename = "Fortinet"  and logtype = "utm"  )) and application = "Google.Drive" #filter to specific categories
+         4.  datasourcename = "Fortinet" and logtype = "traffic" group by country | count(id) #count the numbers
         instance_name: Gurucul instance name used as the Prefect deployment name {instance_name}/{instance_name}.
         instance_id: Gurucul instance id passed to the deployment as integration_id.
         from_date: Start of the search window in UTC, format YYYY-MM-DD HH:MM:SS
